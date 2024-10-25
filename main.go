@@ -2,10 +2,21 @@ package main
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
 )
+
+type Activity struct {
+    ID int `json:"id"`
+    Title string `json:"title"`
+    Category string `json:"category"`
+    Description string `json:"description"`
+    ActivityDate time.Time `json:"activity_date"`
+    Status string `json:"status"`
+    CreatedAt time.Time `json:"created_at"`
+}
 
 func InitDB() (*sql.DB, error) {
     dns := "user=postgres.jmilgpvsyrktrjqfzekq password=muharromi12 host=aws-0-ap-southeast-1.pooler.supabase.com port=6543 dbname=postgres";
