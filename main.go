@@ -42,5 +42,28 @@ func main() {
 
     app := fiber.New()
 
+    //GET /activities
+
+    app.Get("/activities", func(c *fiber.Ctx) error {
+        rows,err := db.Query("SELECT * FROM activities")
+        if err!= nil {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message":err.Error()})
+        }
+        defer rows.Close()
+
+        var activities []Activity
+        for rows.Next() {
+            var activity Activity
+            err = rows.Scan(&activity.ID, &activity.Title, &activity.Category, &activity.Description, &activity.ActivityDate, &activity.Status, &activity.CreatedAt)
+            if err!= nil {
+                return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+            }
+
+            activities = append(activities, activity)
+        }
+
+        return c.JSON(activities)
+    })
+
     app.Listen(":8081")
 }
