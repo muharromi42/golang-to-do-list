@@ -65,5 +65,23 @@ func main() {
         return c.JSON(activities)
     })
 
+    app.Post("/activities", func(c *fiber.Ctx) error {
+        var activity Activity
+        err := c.BodyParser(&activity)
+        if err != nil{
+            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+        }
+        
+        sqlStatement := `INSERT INTO activities(title, category, description, activity_date, status)
+            VALUES($1, $2 ,$3, $4, $5) RETURNING id`
+
+        err = db.QueryRow(sqlStatement, activity.Title, activity.Category, activity.Description, activity.ActivityDate, activity.Status, "NEW").Scan(&activity.ID)
+        if err != nil {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+        }
+
+        return c.Status(fiber.StatusCreated).JSON(fiber.Map{"status": "success"})
+    })
+
     app.Listen(":8081")
 }
