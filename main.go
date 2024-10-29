@@ -75,7 +75,7 @@ func main() {
         sqlStatement := `INSERT INTO activities(title, category, description, activity_date, status)
             VALUES($1, $2 ,$3, $4, $5) RETURNING id`
 
-        err = db.QueryRow(sqlStatement, activity.Title, activity.Category, activity.Description, activity.ActivityDate, activity.Status, "NEW").Scan(&activity.ID)
+        err = db.QueryRow(sqlStatement, activity.Title, activity.Category, activity.Description, activity.ActivityDate, "NEW").Scan(&activity.ID)
         if err != nil {
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
         }
