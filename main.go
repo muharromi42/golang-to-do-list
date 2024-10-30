@@ -4,16 +4,17 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
 )
 
 type Activity struct {
     ID int `json:"id"`
-    Title string `json:"title"`
-    Category string `json:"category"`
-    Description string `json:"description"`
-    ActivityDate time.Time `json:"activity_date"`
+    Title string `json:"title" validate:"required"`
+    Category string `json:"category" validate:"required,oneof=TASK EVENT"`
+    Description string `json:"description" validate:"required"`
+    ActivityDate time.Time `json:"activity_date" validate:"required"`
     Status string `json:"status"`
     CreatedAt time.Time `json:"created_at"`
 }
@@ -41,6 +42,7 @@ func main() {
     defer db.Close()
 
     app := fiber.New()
+    validate := validator.New()
 
     //GET /activities
 
@@ -69,6 +71,10 @@ func main() {
         var activity Activity
         err := c.BodyParser(&activity)
         if err != nil{
+            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+        }
+
+        if err = validate.Struct(&activity); err != nil{
             return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
         }
         
